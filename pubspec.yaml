@@ -9,8 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fluent_ui: ^4.10.0
+  flutter_localizations:
+    sdk: flutter
+  fluent_ui: ^4.11.2
   fluentui_system_icons: ^1.1.273
+  flutter_i18n: ^0.36.2
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   json_annotation: ^4.9.0
@@ -20,11 +23,23 @@ dependencies:
   window_manager: ^0.4.3
   go_router: ^14.8.0
   drift: ^2.25.1
+  system_theme: ^3.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  json_serializable: ^6.9.3
+  build_runner: ^2.4.14
+
+build_runner:
+  targets:
+    - name: mountain
+      module: package:mountain/main.dart
+      output: lib/main.g.dart
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/i18n/
