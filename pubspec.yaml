@@ -24,6 +24,8 @@ dependencies:
   go_router: ^14.8.0
   drift: ^2.25.1
   system_theme: ^3.1.2
+  url_launcher: ^6.3.1
+  package_info_plus: ^8.3.0
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:mountain/pages/_tabs/settings.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:mountain/pages/_tabs/home.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as fi;
@@ -17,15 +18,15 @@ class _NavigationSidebarState extends State<NavigationSidebar> {
     return const DragToMoveArea(
         child: Align(
             alignment: Alignment.centerLeft,
-            child: Text("Mountain", style: TextStyle(fontSize: 14))));
+            child: Text("Mountain", style: TextStyle(fontSize: 16))));
   }
 
   @override
   Widget build(BuildContext context) {
     return NavigationView(
       appBar: NavigationAppBar(
-        // leading: null,
-        // automaticallyImplyLeading: false,
+        leading: null,
+        automaticallyImplyLeading: false,
         title: _title(context),
         actions: const WindowActions(),
       ),
@@ -38,6 +39,13 @@ class _NavigationSidebarState extends State<NavigationSidebar> {
             icon: const Icon(fi.FluentIcons.home_32_regular),
             title: const Text('主页'),
             body: const HomePage(),
+          ),
+        ],
+        footerItems: [
+          PaneItem(
+            icon: const Icon(fi.FluentIcons.settings_32_regular),
+            title: const Text('设置'),
+            body: const SettingsPage(),
           ),
         ],
       ),

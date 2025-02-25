@@ -36,6 +36,25 @@ class Config {
     );
   }
 
+  // for easy state updates
+  Config copyWith({
+    String? language,
+    String? theme,
+    String? material,
+    String? adbSource,
+    String? adbPath,
+    String? ruleSource,
+  }) {
+    return Config(
+      language: language ?? this.language,
+      theme: theme ?? this.theme,
+      material: material ?? this.material,
+      adbSource: adbSource ?? this.adbSource,
+      adbPath: adbPath ?? this.adbPath,
+      ruleSource: ruleSource ?? this.ruleSource,
+    );
+  }
+
   factory Config.fromJson(Map<String, dynamic> json) => _$ConfigFromJson(json);
   Map<String, dynamic> toJson() => _$ConfigToJson(this);
 }

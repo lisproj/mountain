@@ -5,7 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mountain/pages/_routes.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:mountain/utils/config.dart';
-import 'package:mountain/models/config.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mountain/components/providers/config_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,16 +29,21 @@ Future<void> main() async {
     await windowManager.focus();
   });
 
-  runApp(App(config: config));
+  runApp(
+    ProviderScope(
+      overrides: [configProvider.overrideWith((ref) => ConfigNotifier(config))],
+      child: const App(),
+    ),
+  );
 }
 
-class App extends StatelessWidget {
-  final Config config;
-
-  const App({super.key, required this.config});
+class App extends ConsumerWidget {
+  const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final config = ref.watch(configProvider);
+
     // Determine brightness based on config theme
     Brightness brightness = Brightness.light;
     if (config.theme == 'dark') {
@@ -67,7 +73,7 @@ class App extends StatelessWidget {
             FocusThemeData(glowFactor: is10footScreen(context) ? 2.0 : 0.0),
       ),
       supportedLocales: const [
-        // Locale('en'), // English (US)
+        Locale('en', "US"), // English (US)
         Locale('zh', 'CN'), // 简体中文 (中国) Simplified Chinese (PRC)
         // Locale('zh', 'TW'), // 正體中文 (臺灣) Traditional Chinese (Taiwan)
         // Locale('lzh') // 文言 (華夏) Classical Chinese (China)
