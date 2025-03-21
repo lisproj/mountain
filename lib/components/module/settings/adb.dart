@@ -1,18 +1,15 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as fi;
-import 'package:mountain/components/providers/config_provider.dart';
-import 'package:mountain/utils/config.dart';
+import 'package:mountain/providers/config_provider.dart';
 
 class AdbSettings extends ConsumerWidget {
   const AdbSettings({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final config = ref.watch(configProvider);
-    final configNotifier = ref.read(configProvider.notifier);
-
     return Expander(
       header: Row(
         children: [
@@ -27,7 +24,7 @@ class AdbSettings extends ConsumerWidget {
           Text(FlutterI18n.translate(context, "settings.adb.source")),
           const SizedBox(height: 5),
           ComboBox<String>(
-            value: config.adbSource,
+            value: ref.watch(adbSourcePrefProvider),
             items: [
               ComboBoxItem(
                 value: "builtin",
@@ -47,12 +44,12 @@ class AdbSettings extends ConsumerWidget {
             ],
             onChanged: (value) {
               if (value != null) {
-                configNotifier.updateAdbSource(value);
+                ref.read(adbSourcePrefProvider.notifier).update(value);
               }
             },
           ),
           const SizedBox(height: 10),
-          if (config.adbSource == "custom")
+          if (ref.watch(adbSourcePrefProvider) == "custom")
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -65,8 +62,8 @@ class AdbSettings extends ConsumerWidget {
                         placeholder: FlutterI18n.translate(
                             context, "settings.adb.path_placeholder"),
                         readOnly: true,
-                        controller:
-                            TextEditingController(text: config.adbPath ?? ""),
+                        controller: TextEditingController(
+                            text: ref.watch(adbPathPrefProvider) ?? ""),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -74,9 +71,10 @@ class AdbSettings extends ConsumerWidget {
                       child: Text(FlutterI18n.translate(
                           context, "settings.adb.select_path")),
                       onPressed: () async {
-                        final path = await ConfigUtil.pickDirectory();
-                        if (path != null) {
-                          configNotifier.updateAdbPath(path);
+                        final result =
+                            await FilePicker.platform.getDirectoryPath();
+                        if (result != null) {
+                          ref.read(adbPathPrefProvider.notifier).update(result);
                         }
                       },
                     ),
@@ -88,7 +86,7 @@ class AdbSettings extends ConsumerWidget {
           Text(FlutterI18n.translate(context, "settings.adb.rule_source")),
           const SizedBox(height: 5),
           ComboBox<String>(
-            value: config.ruleSource,
+            value: ref.watch(ruleSourcePrefProvider),
             items: [
               ComboBoxItem(
                 value: "github",
@@ -103,7 +101,7 @@ class AdbSettings extends ConsumerWidget {
             ],
             onChanged: (value) {
               if (value != null) {
-                configNotifier.updateRuleSource(value);
+                ref.read(ruleSourcePrefProvider.notifier).update(value);
               }
             },
           ),

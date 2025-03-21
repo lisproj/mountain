@@ -1,64 +1,75 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_i18n/loaders/decoders/yaml_decode_strategy.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mountain/pages/_routes.dart';
-import 'package:window_manager/window_manager.dart';
-import 'package:mountain/utils/config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mountain/components/providers/config_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:window_manager/window_manager.dart';
+
+import 'package:mountain/pages/_routes.dart';
+import 'package:mountain/providers/config_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
 
-  // Load config
-  final config = await ConfigUtil.loadConfig();
+  prefs = await SharedPreferences.getInstance();
 
-  WindowOptions windowOptions = WindowOptions(
-    title: "Mountain",
-    size: const Size(1200, 800),
-    minimumSize: const Size(1000, 600),
-    center: true,
-    skipTaskbar: false,
-    windowButtonVisibility: false,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  if (!Platform.isAndroid) {
+    await windowManager.ensureInitialized();
+    WindowOptions windowOptions = WindowOptions(
+      title: "Mountain",
+      size: const Size(1200, 800),
+      minimumSize: const Size(1000, 600),
+      center: true,
+      skipTaskbar: false,
+      windowButtonVisibility: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
-  runApp(
-    ProviderScope(
-      overrides: [configProvider.overrideWith((ref) => ConfigNotifier(config))],
-      child: const App(),
-    ),
-  );
+  runApp(ProviderScope(child: const App()));
 }
 
-class App extends ConsumerWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final config = ref.watch(configProvider);
+  ConsumerState<App> createState() => _AppState();
+}
 
-    // Determine brightness based on config theme
-    Brightness brightness = Brightness.light;
-    if (config.theme == 'dark') {
-      brightness = Brightness.dark;
-    } else if (config.theme == 'system') {
-      // Use system theme
-      final platformBrightness = MediaQuery.platformBrightnessOf(context);
-      brightness = platformBrightness;
+class _AppState extends ConsumerState<App> {
+  @override
+  Widget build(BuildContext context) {
+    ThemeMode themeMode;
+    if (ref.watch(themePrefProvider) == "system") {
+      themeMode = ThemeMode.system;
+    } else if (ref.watch(themePrefProvider) == "dark") {
+      themeMode = ThemeMode.dark;
+    } else {
+      themeMode = ThemeMode.light;
+    }
+
+    Locale locale;
+    if (ref.watch(languagePrefProvider) == "system") {
+      locale = Locale(PlatformDispatcher.instance.locale.languageCode);
+    } else {
+      locale = Locale(ref.watch(languagePrefProvider) ?? 'en');
     }
 
     return FluentApp.router(
       title: 'Mountain',
       debugShowCheckedModeBanner: false,
+      themeMode: themeMode,
       theme: FluentThemeData(
-        brightness: brightness,
+        brightness:
+            themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light,
         visualDensity: VisualDensity.standard,
         accentColor: Colors.teal,
         focusTheme: FocusThemeData(
@@ -75,8 +86,6 @@ class App extends ConsumerWidget {
       supportedLocales: const [
         Locale('en', "US"), // English (US)
         Locale('zh', 'CN'), // 简体中文 (中国) Simplified Chinese (PRC)
-        // Locale('zh', 'TW'), // 正體中文 (臺灣) Traditional Chinese (Taiwan)
-        // Locale('lzh') // 文言 (華夏) Classical Chinese (China)
       ],
       localizationsDelegates: [
         FluentLocalizations.delegate,
@@ -90,7 +99,7 @@ class App extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate
       ],
-      locale: Locale(config.language),
+      locale: locale,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,
       routeInformationProvider: router.routeInformationProvider,
