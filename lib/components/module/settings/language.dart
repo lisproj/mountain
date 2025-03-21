@@ -2,16 +2,13 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as fi;
-import 'package:mountain/components/providers/config_provider.dart';
+import 'package:mountain/providers/config_provider.dart';
 
 class LanguageSettings extends ConsumerWidget {
   const LanguageSettings({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final config = ref.watch(configProvider);
-    final configNotifier = ref.read(configProvider.notifier);
-
     // Map of language codes to both native name and translated name
     final languageOptions = {
       'en': {
@@ -45,10 +42,12 @@ class LanguageSettings extends ConsumerWidget {
               final language = languageOptions[languageCode]!;
 
               return RadioButton(
-                checked: config.language == languageCode,
+                checked: ref.watch(languagePrefProvider) == languageCode,
                 onChanged: (checked) {
                   if (checked) {
-                    configNotifier.updateLanguage(languageCode);
+                    ref
+                        .read(languagePrefProvider.notifier)
+                        .update(languageCode);
                   }
                 },
                 content: Text('${language['native']}'),

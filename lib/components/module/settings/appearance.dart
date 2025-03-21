@@ -2,16 +2,13 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart' as fi;
-import 'package:mountain/components/providers/config_provider.dart';
+import 'package:mountain/providers/config_provider.dart';
 
 class AppearanceSettings extends ConsumerWidget {
   const AppearanceSettings({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final config = ref.watch(configProvider);
-    final configNotifier = ref.read(configProvider.notifier);
-
     return Expander(
       header: Row(
         children: [
@@ -26,7 +23,7 @@ class AppearanceSettings extends ConsumerWidget {
           Text(FlutterI18n.translate(context, "settings.appearance.theme")),
           const SizedBox(height: 5),
           ComboBox<String>(
-            value: config.theme,
+            value: ref.watch(themePrefProvider),
             items: [
               ComboBoxItem(
                 value: "system",
@@ -46,7 +43,7 @@ class AppearanceSettings extends ConsumerWidget {
             ],
             onChanged: (value) {
               if (value != null) {
-                configNotifier.updateTheme(value);
+                ref.read(themePrefProvider.notifier).update(value);
               }
             },
           ),
@@ -54,7 +51,7 @@ class AppearanceSettings extends ConsumerWidget {
           Text(FlutterI18n.translate(context, "settings.appearance.material")),
           const SizedBox(height: 5),
           ComboBox<String>(
-            value: config.material,
+            value: ref.watch(materialPrefProvider),
             items: [
               ComboBoxItem(
                 value: "default",
@@ -74,7 +71,7 @@ class AppearanceSettings extends ConsumerWidget {
             ],
             onChanged: (value) {
               if (value != null) {
-                configNotifier.updateMaterial(value);
+                ref.read(materialPrefProvider.notifier).update(value);
               }
             },
           ),

@@ -26,6 +26,8 @@ dependencies:
   system_theme: ^3.1.2
   url_launcher: ^6.3.1
   package_info_plus: ^8.3.0
+  shared_preferences: ^2.5.2
+  shared_preferences_riverpod: ^0.3.0
 
 dev_dependencies:
   flutter_test:
