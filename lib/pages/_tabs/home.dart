@@ -1,20 +1,21 @@
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mountain/components/layout/navbar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage(
-      header: const PageHeader(
-        title: Text('主页'),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Mountain'),
       ),
-      content: const Center(
-        child: Text(
-          '这是主页',
-          style: TextStyle(fontSize: 24),
-        ),
+      body: const Center(
+        child: Text('首页'),
       ),
+      bottomNavigationBar: const NavBar(),
     );
   }
 }

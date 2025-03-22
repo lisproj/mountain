@@ -1,20 +1,21 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_i18n/loaders/decoders/yaml_decode_strategy.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:system_theme/system_theme.dart';
 
 import 'package:mountain/pages/_routes.dart';
 import 'package:mountain/providers/config_provider.dart';
 
 Future<void> main() async {
+  await SystemTheme.accentColor.load();
   WidgetsFlutterBinding.ensureInitialized();
-
   prefs = await SharedPreferences.getInstance();
 
   if (!Platform.isAndroid) {
@@ -47,13 +48,15 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
-    ThemeMode themeMode;
-    if (ref.watch(themePrefProvider) == "system") {
-      themeMode = ThemeMode.system;
+    ThemeMode theme;
+    if (ref.watch(themePrefProvider) == "light") {
+      theme = ThemeMode.light;
     } else if (ref.watch(themePrefProvider) == "dark") {
-      themeMode = ThemeMode.dark;
+      theme = ThemeMode.dark;
+    } else if (ref.watch(themePrefProvider) == "system") {
+      theme = ThemeMode.system;
     } else {
-      themeMode = ThemeMode.light;
+      theme = ThemeMode.system;
     }
 
     Locale locale;
@@ -63,32 +66,39 @@ class _AppState extends ConsumerState<App> {
       locale = Locale(ref.watch(languagePrefProvider) ?? 'en');
     }
 
-    return FluentApp.router(
+    final lightTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: ref.watch(dynamicColorPrefProvider) == true
+            ? SystemTheme.accentColor.accent
+            : Colors.tealAccent,
+      ),
+    );
+
+    final darkTheme = ThemeData(
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: ref.watch(dynamicColorPrefProvider) == true
+            ? SystemTheme.accentColor.accent
+            : Colors.tealAccent,
+        brightness: Brightness.dark,
+      ),
+      scaffoldBackgroundColor:
+          ref.watch(oledDarkModePrefProvider) == true ? Colors.black : null,
+      canvasColor:
+          ref.watch(oledDarkModePrefProvider) == true ? Colors.black : null,
+    );
+
+    return MaterialApp.router(
       title: 'Mountain',
       debugShowCheckedModeBanner: false,
-      themeMode: themeMode,
-      theme: FluentThemeData(
-        brightness:
-            themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light,
-        visualDensity: VisualDensity.standard,
-        accentColor: Colors.teal,
-        focusTheme: FocusThemeData(
-          glowFactor: is10footScreen(context) ? 2.0 : 0.0,
-        ),
-      ),
-      darkTheme: FluentThemeData(
-        brightness: Brightness.dark,
-        visualDensity: VisualDensity.standard,
-        accentColor: Colors.teal,
-        focusTheme:
-            FocusThemeData(glowFactor: is10footScreen(context) ? 2.0 : 0.0),
-      ),
+      themeMode: theme,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       supportedLocales: const [
         Locale('en', "US"), // English (US)
-        Locale('zh', 'CN'), // 简体中文 (中国) Simplified Chinese (PRC)
+        Locale('zh', 'CN'), // Simplified Chinese (PRC)
       ],
       localizationsDelegates: [
-        FluentLocalizations.delegate,
         FlutterI18nDelegate(
             translationLoader: FileTranslationLoader(
                 useCountryCode: true,
