@@ -1,7 +1,6 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mountain/components/layout/navbar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -44,7 +43,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         width: (MediaQuery.of(context).size.width > 1000) ? 1000 : null,
         child: _settings(),
       ),
-      bottomNavigationBar: const NavBar(),
     );
   }
 
